@@ -2,13 +2,6 @@ import { NextResponse, NextRequest } from "next/server";
 import { search } from "@navetacandra/ddg";
 
 const types = ["regular", "image", "video", "news", "map"];
-const EOF = q => ({
-  title: "EOF",
-  url: `http://www.google.com/search?hl=en&q=${encodeURIComponent(q)}`,
-  domain: "www.google.com",
-  description: "",
-  icon: "https://external-content.duckduckgo.com/ip3/www.google.com.ico"
-});
 
 export async function GET(req: NextRequest) {
   const { query, type, next } = Object.fromEntries(new URL(req.url).searchParams);
@@ -20,7 +13,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const result = await search({ query, next }, currentType);
-    const data = {...result, results: result.results.filter(f => !(f.title == "EOF" && f.domain == "www.google.com"))}
+    const data = {...result, results: result.results.filter(f => !(f.title == "EOF" && f.domain == "www.google.com"))};
 
     if(data.results < 1) return NextResponse.json({ status: "error", code: 404, message: "results not found" }, { status: 404 });
     return NextResponse.json({ status: "success", code: 200, data }, { status: 200 });
