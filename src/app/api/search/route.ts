@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { search } from "@navetacandra/ddg";
+import { search, SearchType } from "@navetacandra/ddg";
 
 const types = ["regular", "image", "video", "news", "map"];
 
@@ -12,10 +12,10 @@ export async function GET(req: NextRequest) {
   if(!isValidType) return NextResponse.json({ status: "error", code: 400, message: "Invalid type" }, { status: 400 });
 
   try {
-    const result = await search({ query, next }, currentType);
-    const data = {...result, results: result.results.filter(f => !(f.title == "EOF" && f.domain == "www.google.com"))};
+    const result = await search({ query, next }, currentType as SearchType);
+    const data = {...result, results: result.results.filter(f => !('title' in f && f.title == 'EOF' && 'domain'in f && f.domain == 'www.google.com'))};
 
-    if(data.results < 1) return NextResponse.json({ status: "error", code: 404, message: "results not found" }, { status: 404 });
+    if(data.results.length < 1) return NextResponse.json({ status: "error", code: 404, message: "results not found" }, { status: 404 });
     return NextResponse.json({ status: "success", code: 200, data }, { status: 200 });
   } catch(err: any) {
     console.error(err);
